@@ -1,5 +1,5 @@
 # 🤖 Market Scout Automation
-# Runs every 12 hours • Free on public repos [[11]]
+# Runs every 12 hours + manual trigger • Free on public repos
 
 name: Market Opportunity Scout
 
@@ -7,7 +7,16 @@ on:
   schedule:
     # Runs at 00:00 and 12:00 UTC daily
     - cron: '0 */12 * * *'
-  workflow_dispatch: # Allows manual trigger for testing
+  workflow_dispatch:  # ✨ Enables manual trigger from UI button
+    inputs:
+      run_mode:
+        description: 'Scan intensity'
+        required: true
+        default: 'standard'
+        type: choice
+        options:
+          - standard
+          - deep
 
 jobs:
   scout:
@@ -27,16 +36,21 @@ jobs:
 
       - name: Run Market Scout
         env:
-          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}      # Get free at exa.ai
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}  # Get free at aistudio.google.com
-          GMAIL_USER: ${{ secrets.GMAIL_USER }}          # Your Gmail address
-          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }} # App password from Google
+          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          SCOUT_SOURCES: ${{ vars.SOURCES || 'site:reddit.com, site:twitter.com, site:linkedin.com' }}
+          SCOUT_DATE_RANGE: ${{ vars.DATE_RANGE || '2021-01-01..2026-04-06' }}
+          SCOUT_PHRASES: ${{ vars.PHRASES || 'wish there was a tool for\nfrustrated that I can't\ngap in the market for' }}
+          SCOUT_ROLES: ${{ vars.ROLES || 'CEO, founder, CTO' }}
+          RUN_MODE: ${{ github.event.inputs.run_mode || 'standard' }}
         run: python scout.py
 
       - name: Commit & push updated results
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add results.json index.html
-          git commit -m "🤖 Auto-update: Market opportunities $(date)" || echo "No changes to commit"
+          git add results.json stats.json index.html
+          git commit -m "🤖 Auto-update: Market opportunities $(date '+%Y-%m-%d %H:%M')" || echo "No changes to commit"
           git push
