@@ -1,0 +1,42 @@
+# 🤖 Market Scout Automation
+# Runs every 12 hours • Free on public repos [[11]]
+
+name: Market Opportunity Scout
+
+on:
+  schedule:
+    # Runs at 00:00 and 12:00 UTC daily
+    - cron: '0 */12 * * *'
+  workflow_dispatch: # Allows manual trigger for testing
+
+jobs:
+  scout:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install requests google-generativeai
+
+      - name: Run Market Scout
+        env:
+          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}      # Get free at exa.ai
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}  # Get free at aistudio.google.com
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}          # Your Gmail address
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }} # App password from Google
+        run: python scout.py
+
+      - name: Commit & push updated results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add results.json index.html
+          git commit -m "🤖 Auto-update: Market opportunities $(date)" || echo "No changes to commit"
+          git push
