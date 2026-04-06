@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Market Opportunity Scout</title>
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --card: #ffffff;
+      --text: #1d1d1f;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --pain-10: #ff3b30;
+      --pain-7: #ff9500;
+      --pain-4: #34c759;
+      --border: #d2d2d7;
+      --shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .container { max-width: 980px; margin: 0 auto; }
+    header {
+      text-align: center;
+      padding: 48px 24px 32px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 18px;
+      color: white;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow);
+    }
+    header h1 { font-size: 2.2rem; font-weight: 600; margin-bottom: 8px; }
+    header p { opacity: 0.95; font-size: 1.1rem; }
+    .config-panel {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .config-panel h3 { margin-bottom: 16px; font-size: 1.3rem; }
+    .config-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .config-item label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: #424245;
+    }
+    .config-item input, .config-item select, .config-item textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      background: #fafafa;
+      transition: border-color 0.2s;
+    }
+    .config-item input:focus, .config-item textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: white;
+    }
+    .btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn:hover { background: var(--accent-hover); }
+    .btn-secondary {
+      background: white;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+    .btn-secondary:hover { background: #f0f7ff; }
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 32px 0 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .results-header h2 { font-size: 1.5rem; }
+    .share-controls { display: flex; gap: 10px; flex-wrap: wrap; }
+    .opportunity-card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      border-left: 4px solid var(--accent);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+    .opportunity-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+    .opportunity-card.selected {
+      border-left-color: var(--pain-10);
+      background: #fff9f9;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .industry-tag {
+      background: #e8f4fd;
+      color: var(--accent);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .pain-score {
+      background: var(--pain-10);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .pain-score[data-score="7-9"] { background: var(--pain-7); }
+    .pain-score[data-score="1-6"] { background: var(--pain-4); }
+    .pitch {
+      font-size: 1.05rem;
+      margin: 8px 0 12px;
+      color: #333;
+      line-height: 1.6;
+    }
+    .source-link {
+      display: inline-block;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      margin-top: 8px;
+    }
+    .source-link:hover { text-decoration: underline; }
+    .checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-right: 12px;
+      cursor: pointer;
+    }
+    .checkbox input { width: 18px; height: 18px; cursor: pointer; }
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: #666;
+      background: var(--card);
+      border-radius: 16px;
+      border: 2px dashed var(--border);
+    }
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+    footer {
+      text-align: center;
+      padding: 32px 24px;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    @media (max-width: 600px) {
+      header h1 { font-size: 1.8rem; }
+      .config-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎯 Market Opportunity Scout</h1>
+      <p>AI-powered gap detection • Runs every 12 hours • 100% free</p>
+    </header>
+
+    <!-- Configuration Panel (Placeholders) -->
+    <div class="config-panel">
+      <h3>⚙️ Scout Configuration</h3>
+      <div class="config-grid">
+        <div class="config-item">
+          <label>🔍 Search Sources (comma-separated)</label>
+          <input type="text" id="sources" value="site:reddit.com, site:twitter.com, site:linkedin.com" placeholder="e.g., site:reddit.com, site:news.ycombinator.com">
+        </div>
+        <div class="config-item">
+          <label>📅 Date Range</label>
+          <input type="text" id="dateRange" value="2021-01-01..2026-04-06" placeholder="YYYY-MM-DD..YYYY-MM-DD">
+        </div>
+        <div class="config-item">
+          <label>💬 Search Phrases (one per line)</label>
+          <textarea id="phrases" rows="4" placeholder="&#10;wish there was a tool for&#10;frustrated that I can't&#10;gap in the market for&#10;no good solution for">wish there was a tool for
+frustrated that I can't
+gap in the market for
+no good solution for</textarea>
+        </div>
+        <div class="config-item">
+          <label>👥 Target Roles</label>
+          <input type="text" id="roles" value="CEO, founder, CTO, product lead" placeholder="e.g., CEO, founder, engineer">
+        </div>
+      </div>
+      <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">
+        <button class="btn" onclick="saveConfig()">💾 Save Configuration</button>
+        <button class="btn btn-secondary" onclick="runScoutNow()">▶️ Run Scout Now (Demo)</button>
+        <span style="font-size: 0.9rem; color: #666; align-self: center;">* Full automation runs via GitHub Actions every 12 hours</span>
+      </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="results-header">
+      <h2>🔍 Latest Opportunities</h2>
+      <div class="share-controls">
+        <button class="btn btn-secondary" onclick="selectAll()">Select All</button>
+        <button class="btn btn-secondary" onclick="deselectAll()">Deselect</button>
+        <button class="btn" onclick="shareSelected()">✉️ Share Selected via Email</button>
+      </div>
+    </div>
+
+    <div id="resultsContainer">
+      <!-- Placeholder: Results load here after GitHub Actions runs -->
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M21 21l-4.35-4.35M19 11a8 8 0 11-16 0 8 8 0 0116 0z"/>
+        </svg>
+        <p><strong>No results yet.</strong></p>
+        <p style="margin-top: 8px; font-size: 0.95rem;">Your first automated scan runs within 12 hours.<br>Or click "Run Scout Now (Demo)" above to see sample output.</p>
+      </div>
+    </div>
+
+    <footer>
+      <p>🍎 Market Scout • Hosted free on GitHub Pages • <a href="https://github.com/your-username/market-scout" style="color:var(--accent);text-decoration:none">View Source</a></p>
+      <p style="margin-top: 8px; font-size: 0.85rem; opacity: 0.8;">All components free: GitHub Pages • GitHub Actions • Exa.ai • Gemini API • Gmail</p>
+    </footer>
+  </div>
+
+  <script>
+    // Load saved config from localStorage
+    document.addEventListener('DOMContentLoaded', () => {
+      const saved = localStorage.getItem('scoutConfig');
+      if (saved) {
+        const config = JSON.parse(saved);
+        if (config.sources) document.getElementById('sources').value = config.sources;
+        if (config.dateRange) document.getElementById('dateRange').value = config.dateRange;
+        if (config.phrases) document.getElementById('phrases').value = config.phrases;
+        if (config.roles) document.getElementById('roles').value = config.roles;
+      }
+      // Demo: Show sample results if user clicks "Run Scout Now"
+      window.runScoutNow = () => {
+        const container = document.getElementById('resultsContainer');
+        container.innerHTML = `
+          <div class="opportunity-card" onclick="toggleSelect(this)">
+            <div class="card-header">
+              <span class="industry-tag">SaaS</span>
+              <span class="pain-score" data-score="10">10/10</span>
+            </div>
+            <div class="pitch"><strong>Missing Tool Pitch:</strong> A no-code connector that syncs Stripe subscription data directly to Google Sheets with real-time webhook support—no Zapier required.</div>
+            <a href="https://reddit.com/r/SaaS/comments/xyz" class="source-link" target="_blank">Source: r/SaaS • 3 days ago ↗</a>
+            <div style="margin-top:12px"><label class="checkbox"><input type="checkbox"> Include in email share</label></div>
+          </div>
+          <div class="opportunity-card" onclick="toggleSelect(this)">
+            <div class="card-header">
+              <span class="industry-tag">Healthcare Tech</span>
+              <span class="pain-score" data-score="9">9/10</span>
+            </div>
+            <div class="pitch"><strong>Missing Tool Pitch:</strong> HIPAA-compliant patient intake form builder that auto-generates FHIR-compatible JSON for EHR integration.</div>
+            <a href="https://twitter.com/healthfounder/status/123" class="source-link" target="_blank">Source: @healthfounder • 1 week ago ↗</a>
+            <div style="margin-top:12px"><label class="checkbox"><input type="checkbox"> Include in email share</label></div>
+          </div>
+        `;
+        alert('✅ Demo results loaded! In production, GitHub Actions will populate this with real AI-analyzed opportunities.');
+      };
+    });
+
+    function saveConfig() {
+      const config = {
+        sources: document.getElementById('sources').value,
+        dateRange: document.getElementById('dateRange').value,
+        phrases: document.getElementById('phrases').value,
+        roles: document.getElementById('roles').value
+      };
+      localStorage.setItem('scoutConfig', JSON.stringify(config));
+      alert('✅ Configuration saved locally! (In production, this would update your GitHub Actions workflow)');
+    }
+
+    function toggleSelect(card) {
+      card.classList.toggle('selected');
+      const checkbox = card.querySelector('input[type="checkbox"]');
+      checkbox.checked = !checkbox.checked;
+    }
+
+    function selectAll() {
+      document.querySelectorAll('.opportunity-card').forEach(card => {
+        card.classList.add('selected');
+        card.querySelector('input[type="checkbox"]').checked = true;
+      });
+    }
+
+    function deselectAll() {
+      document.querySelectorAll('.opportunity-card').forEach(card => {
+        card.classList.remove('selected');
+        card.querySelector('input[type="checkbox"]').checked = false;
+      });
+    }
+
+    function shareSelected() {
+      const selected = Array.from(document.querySelectorAll('.opportunity-card.selected'));
+      if (selected.length === 0) {
+        alert('⚠️ Select at least one opportunity to share');
+        return;
+      }
+      // In production: This would trigger GitHub Actions to send email via Gmail API
+      // For demo: Show what would be sent
+      const summary = selected.map(card => {
+        const pitch = card.querySelector('.pitch').textContent;
+        const source = card.querySelector('.source-link').textContent;
+        const pain = card.querySelector('.pain-score').textContent;
+        return `• ${pain} • ${pitch}\n  ${source}`;
+      }).join('\n\n');
+      alert(`📧 Email draft would include:\n\n${summary}\n\n(In production, this sends via your Gmail using GitHub Actions)`);
+    }
+  </script>
+</body>
+</html>
